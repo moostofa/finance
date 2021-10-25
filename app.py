@@ -54,11 +54,27 @@ def index():
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
 def buy():
-    if request.method == "POST":
-        return
-    else:
-        return render_template("buy.html")
     """Buy shares of stock"""
+    if request.method == "POST":
+        #validate symbol
+        symbol = request.form.get("symbol")                     
+        if symbol.strip() == "" or not symbol:
+            return apology("please enter a symbol", 403)
+                                                              
+        #check if ticket symbol exists
+        if not lookup(symbol):
+            return apology("ticker symbol does not exist", 403) 
+        
+        #validate shares
+        shares = request.form.get("shares")
+        if shares.strip() == "" or not shares:
+            return apology("please enter a number of shares to purchase", 403)
+            
+        if int(shares) < 0:
+            return apology("please enter a positive number", 403)
+        return
+    else:       #if method is GET
+        return render_template("buy.html")
 
 
 @app.route("/history")
@@ -121,14 +137,14 @@ def quote():
     """Get stock quote."""
     if request.method == "POST":        #when user fills in and submits the form
         #get ticker symbol
-        symbol = request.form.get("symbol")
-        if not symbol:
+        symbol = request.form.get("symbol")                     
+        if symbol.strip() == "" or not symbol:
             return apology("please enter a symbol", 403)
-            
+                                                              
         #look up ticker symbol and get quote
         quote = lookup(symbol)
         if not quote:
-            return apology("ticker symbol does not exist", 403)
+            return apology("ticker symbol does not exist", 403) 
         
         return render_template("quoted.html", stock_info = quote)
     else:       #else: GET request for quote.html
