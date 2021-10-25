@@ -73,6 +73,18 @@ def buy():
         if int(shares) < 0:
             return apology("please enter a positive number", 403)
 
+        current_user = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])[0]["username"]
+        shares = int(shares)
+        current_price = lookup(symbol)["price"]
+        cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+        return f"""
+        current user = {current_user},
+        chosen stock = {symbol.upper()},
+        shares to buy = {shares},
+        current price of stock = {current_price},
+        cash on hand = {cash}
+        """
+
         #create table stocks
         #create table transactions (for history)
         return
