@@ -72,6 +72,9 @@ def buy():
             
         if int(shares) < 0:
             return apology("please enter a positive number", 403)
+
+        #create table stocks
+        #create table transactions (for history)
         return
     else:       #if method is GET
         return render_template("buy.html")
@@ -200,3 +203,22 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
+
+"""
+sqlite table:
+
+CREATE TABLE stocks (
+    user_id INTEGER,
+    symbol TEXT NOT NULL,
+    shares INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE transaction_data (
+    user_id INTEGER,
+    symbol TEXT NOT NULL,
+    shares INTEGER,
+    time TEXT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+"""
