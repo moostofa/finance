@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+    <h1>Details</h1>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Cash</th>
+        </tr>
+        <tr>
+            <td>{{ user["username"] }}</td>
+            <td>{{ user["cash"] }}</td>
+        </tr>
+    </table>
+    <h3></h3>
+{% endblock %}
