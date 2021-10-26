@@ -2,7 +2,7 @@ import json
 import os
 
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, jsonify
+from flask import Flask, flash, redirect, render_template, request, session
 from flask_session import Session
 from tempfile import mkdtemp
 from werkzeug.exceptions import default_exceptions, HTTPException, InternalServerError
@@ -46,22 +46,24 @@ if not os.environ.get("API_KEY"):
 @app.route("/")
 @login_required
 def index():
+    """Show portfolio of stocks"""
     portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ?", session["user_id"])
     for company in portfolio:
-        company_lookup = lookup(company["symbol"])
+        #lookup real-time data for the stock
+        company_lookup = lookup(company["symbol"])  
+
+        #append stock information to the dictionary
         company["name"] = company_lookup["name"]
         company["price"] = company_lookup["price"]
         company["TOTAL"] = company["shares"] * company["price"]
+    
+    #get cash balance of current user
+    cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+
+    #convert python [{}] to JSON that can be accessed by JavaScript
     with open("static/info.json", "w") as file:
         file.write(f"{json.dumps(portfolio)}")  
-    return render_template("index.html")
-    """Show portfolio of stocks"""
-    #gets the details of user in current session
-    #db.execute returns a list with 1 dict. That dict holds current user's details, so get it
-    """current_user = db.execute("SELECT username, cash FROM users WHERE id = ?", session["user_id"])[0]  
-    with open("static/info.json", "w") as file:
-        file.write(f"{json.dumps(current_user)}")  
-    return render_template("index.html")"""
+    return render_template("index.html", cash = cash)
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -244,14 +246,3 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
-
-"""
-CREATE TABLE portfolio (
-    user_id INTEGER,
-    symbol TEXT NOT NULL,
-    name TEXT NOT NULL,
-    shares INTEGER, 
-    FOREIGN KEY(user_id) REFERENCES users(id)
-);
-CREATE UNIQUE INDEX symbol ON portfolio (symbol);
-"""
