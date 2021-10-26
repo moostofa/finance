@@ -52,7 +52,9 @@ def index():
         company["name"] = company_lookup["name"]
         company["price"] = company_lookup["price"]
         company["TOTAL"] = company["shares"] * company["price"]
-    return json.dumps(portfolio)
+    with open("static/info.json", "w") as file:
+        file.write(f"{json.dumps(portfolio)}")  
+    return render_template("index.html")
     """Show portfolio of stocks"""
     #gets the details of user in current session
     #db.execute returns a list with 1 dict. That dict holds current user's details, so get it
@@ -84,14 +86,15 @@ def buy():
             return apology("please enter a positive number", 403)
 
         #get all the data required
-        user_id = db.execute("SELECT id FROM users WHERE id = ?", session["user_id"])[0]["id"]
+        user_id = session["user_id"]
         symbol = symbol.upper()
+        name = lookup(symbol)["name"]
         shares = int(shares)
-        current_price = lookup(symbol)["price"]
+        price = lookup(symbol)["price"]
         cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
 
         #validate purchase
-        purchase = shares * current_price
+        purchase = shares * price
         if purchase > cash:
             return apology("insufficient funds", 403)
         cash -= purchase
@@ -105,7 +108,7 @@ def buy():
 
         #if user already showns share of this stock, update share count
         if SQL_exists_value == 0:       
-            db.execute("INSERT INTO portfolio VALUES (?, ?, ?)", user_id, symbol, shares)
+            db.execute("INSERT INTO portfolio VALUES (?, ?, ?, ?)", user_id, symbol, name, shares)
         #otherwise, create a new row for the shares
         else:                           
             db.execute("UPDATE portfolio SET shares = shares + ? WHERE user_id = ? AND symbol = ?", shares, user_id, symbol)
@@ -246,10 +249,9 @@ for code in default_exceptions:
 CREATE TABLE portfolio (
     user_id INTEGER,
     symbol TEXT NOT NULL,
-    company_name TEXT NOT NULL,
-    shares INTEGER, name text,
+    name TEXT NOT NULL,
+    shares INTEGER, 
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
-
 CREATE UNIQUE INDEX symbol ON portfolio (symbol);
 """
