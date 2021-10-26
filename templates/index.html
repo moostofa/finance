@@ -6,44 +6,38 @@
 
 {% block main %}
     <h1>Using JS</h1>
-    <div></div>
-    <table id="display-info">
-        <tr>
-            <th>Symbol</th>
-            <th>Name</th>
-            <th>Shares</th>
-            <th>Price</th>
-            <th>TOTAL</th>
-        </tr>
-        <script>
-            fetch("static/info.json").then(response => {
-                return response.json()
-            }).then(result => {
-                console.log(result)
-                console.log(typeof(result))
-                Object.entries(response).forEach(([key, value]) => {
-                    console.log(`key: ${key}, value: ${value}`)
-                });
-                /*
-                for (let i in response) {
-                    console.log(object[i])
-                    document.getElementById("#display-info").innerHTML +=
+    <script src="static/info.js"></script>
+    <div>
+        <table id="display-info">
+            <tr>
+                <th>Symbol</th>
+                <th>Name</th>
+                <th>Shares</th>
+                <th>Price</th>
+                <th>TOTAL</th>
+            </tr>
+            <script>
+                console.log(data)
+                for (let object of data) {
+                    document.getElementById("display-info").innerHTML += 
                     `
                     <tr>
-                        <td>${object[i]["symbol"]}</td>
-                        <td>${object[i]["name"]}</td>
-                        <td>${object[i]["shares"]}</td>
-                        <td>${object[i]["price"]}</td>
-                        <td>${object[i]["TOTAL"]}</td>
+                        <td>${object["symbol"]}</td>
+                        <td>${object["name"]}</td>
+                        <td>${object["shares"]}</td>
+                        <td>${object["price"]}</td>
+                        <td>${object["TOTAL"]}</td>
                     </tr>
                     `
                 }
-                */
-            })
-        </script>
-        <tr>
-            <td></td><td></td><td></td><td></td>
-            <td>{{ cash }}</td>
-        </tr>
-    </table>
+                document.getElementById("display-info").innerHTML +=
+                `
+                <tr>
+                    <td></td><td></td><td></td><td></td>
+                    <td>${cash}</td>
+                </tr>
+                `
+            </script>
+        </table>
+    </div>
 {% endblock %}

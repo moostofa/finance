@@ -58,11 +58,11 @@ def index():
         company["TOTAL"] = company["shares"] * company["price"]
     
     #get cash balance of current user
-    cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])
+    cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
 
     #convert python [{}] to JSON that can be accessed by JavaScript
-    with open("static/info.json", "w") as file:
-        file.write(f"{json.dumps(portfolio)}")  
+    with open("static/info.js", "w") as file:
+        file.write(f"""let data = {json.dumps(portfolio)};\nlet cash = {cash}""")  
     return render_template("index.html", cash = cash)
 
 @app.route("/buy", methods=["GET", "POST"])
