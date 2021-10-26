@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Index
+{% endblock %}
+
+{% block main %}
+    <h1>Transaction history</h1>
+    <div>
+        <table id="transaction-info">
+            <tr>
+                <th>Symbol</th>
+                <th>Shares</th>
+                <th>Price (USD)</th>
+                <th>Transacted</th>
+            </tr>
+            <script>
+                for (let transaction of transactions) {  //iterate over each transaction in transactions provided by static/info.js
+                    document.getElementById("transaction-info").innerHTML +=    //create a table row for each object
+                    `
+                    <tr>
+                        <td>${transaction["symbol"]}</td>
+                        <td>${transaction["shares"]}</td>
+                        <td>$${transaction["price"]}</td>
+                        <td>${transaction["time"]}</td>
+                    </tr>
+                    `
+                }
+            </script>
+        </table>
+    </div>
+{% endblock %}

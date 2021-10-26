@@ -12,21 +12,21 @@
                 <th>Symbol</th>
                 <th>Name</th>
                 <th>Shares</th>
-                <th>Price</th>
+                <th>Price (USD)</th>
                 <th>TOTAL</th>
             </tr>
             <script>
                 let sum = cash              //will store: portoflio value + cash
-                for (let object of data) {  //iterate over the objects in the list provided by static/info.js
-                    sum += object["TOTAL"]
+                for (let holdings of portfolio) {  //iterate over the objects in the portfolio provided by static/info.js
+                    sum += holdings["TOTAL"]
                     document.getElementById("display-info").innerHTML +=    //create a table row for each object
                     `
                     <tr>
-                        <td>${object["symbol"]}</td>
-                        <td>${object["name"]}</td>
-                        <td>${object["shares"]}</td>
-                        <td>${object["price"]}</td>
-                        <td>${object["TOTAL"]}</td>
+                        <td>${holdings["symbol"]}</td>
+                        <td>${holdings["name"]}</td>
+                        <td>${holdings["shares"]}</td>
+                        <td>$${holdings["price"]}</td>
+                        <td>$${holdings["TOTAL"]}</td>
                     </tr>
                     `
                 }
@@ -36,11 +36,11 @@
                 <tr>
                     <td>CASH</td>
                     <td></td><td></td><td></td>
-                    <td>${cash}</td>
+                    <td>$${cash}</td>
                 </tr>
                 <tr>
                     <td></td><td></td><td></td><td></td>
-                    <td>${sum.toFixed(2)}</td>
+                    <td>$${sum.toFixed(2)}</td>
                 </tr>
                 `
             </script>

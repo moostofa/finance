@@ -1,4 +1,3 @@
-import json
 import os
 
 from cs50 import SQL
@@ -62,7 +61,7 @@ def index():
 
     #pass in the portfolio details and cash balance into a JS file
     with open("static/info.js", "w") as file:
-        file.write(f"let data = {json.dumps(portfolio)};\nlet cash = {cash}")  
+        file.write(f"let portfolio = {portfolio};\nlet cash = {cash};")  
     return render_template("index.html", cash = cash)
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -127,8 +126,13 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    transactions = db.execute("SELECT symbol, shares, time FROM transaction_data WHERE user_id = ?", session["user_id"])
+    for transaction in transactions:
+        transaction["price"] = lookup(transaction["symbol"])["price"]
 
+    with open("static/info.js", "w") as file:
+        file.write(f"let transactions = {transactions}")  
+    return render_template("history.html")
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
