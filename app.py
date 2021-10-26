@@ -241,3 +241,15 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
+
+"""
+CREATE TABLE portfolio (
+    user_id INTEGER,
+    symbol TEXT NOT NULL,
+    company_name TEXT NOT NULL,
+    shares INTEGER, name text,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE UNIQUE INDEX symbol ON portfolio (symbol);
+"""
