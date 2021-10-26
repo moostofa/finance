@@ -16,10 +16,10 @@
                 <th>TOTAL</th>
             </tr>
             <script>
-                let sum = 0
-                for (let object of data) {
+                let sum = cash              //will store: portoflio value + cash
+                for (let object of data) {  //iterate over the objects in the list provided by static/info.js
                     sum += object["TOTAL"]
-                    document.getElementById("display-info").innerHTML += 
+                    document.getElementById("display-info").innerHTML +=    //create a table row for each object
                     `
                     <tr>
                         <td>${object["symbol"]}</td>
@@ -30,7 +30,8 @@
                     </tr>
                     `
                 }
-                document.getElementById("display-info").innerHTML +=
+                //create 2 more rows for cash and total portoflio value
+                document.getElementById("display-info").innerHTML +=  
                 `
                 <tr>
                     <td>CASH</td>
@@ -39,7 +40,7 @@
                 </tr>
                 <tr>
                     <td></td><td></td><td></td><td></td>
-                    <td>${cash + sum}</td>
+                    <td>${sum.toFixed(2)}</td>
                 </tr>
                 `
             </script>
