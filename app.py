@@ -46,14 +46,20 @@ if not os.environ.get("API_KEY"):
 @app.route("/")
 @login_required
 def index():
-    #hello
+    portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ?", session["user_id"])
+    for company in portfolio:
+        company_lookup = lookup(company["symbol"])
+        company["name"] = company_lookup["name"]
+        company["price"] = company_lookup["price"]
+        company["TOTAL"] = company["shares"] * company["price"]
+    return json.dumps(portfolio)
     """Show portfolio of stocks"""
     #gets the details of user in current session
     #db.execute returns a list with 1 dict. That dict holds current user's details, so get it
-    current_user = db.execute("SELECT username, cash FROM users WHERE id = ?", session["user_id"])[0]  
+    """current_user = db.execute("SELECT username, cash FROM users WHERE id = ?", session["user_id"])[0]  
     with open("static/info.json", "w") as file:
         file.write(f"{json.dumps(current_user)}")  
-    return render_template("index.html", user = current_user)
+    return render_template("index.html")"""
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
