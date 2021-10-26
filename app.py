@@ -46,7 +46,7 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ?", session["user_id"])
+    portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", session["user_id"])
     for company in portfolio:
         #lookup real-time data for the stock
         company_lookup = lookup(company["symbol"])  
@@ -126,7 +126,7 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    transactions = db.execute("SELECT symbol, shares, time FROM transaction_data WHERE user_id = ?", session["user_id"])
+    transactions = db.execute("SELECT symbol, shares, time FROM transaction_data WHERE user_id = ? ORDER BY time", session["user_id"])
     for transaction in transactions:
         transaction["price"] = lookup(transaction["symbol"])["price"]
 
