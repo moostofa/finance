@@ -54,15 +54,15 @@ def index():
 
         #append stock information to the dictionary
         company["name"] = company_lookup["name"]
-        company["price"] = company_lookup["price"]
-        company["TOTAL"] = company["shares"] * company["price"]
+        company["price"] = (company_lookup["price"])
+        company["TOTAL"] = round((company["shares"] * company["price"]), 2)
     
     #get cash balance of current user
-    cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
+    cash = round((db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]), 2)
 
-    #convert python [{}] to JSON that can be accessed by JavaScript
+    #pass in the portfolio details and cash balance into a JS file
     with open("static/info.js", "w") as file:
-        file.write(f"""let data = {json.dumps(portfolio)};\nlet cash = {cash}""")  
+        file.write(f"let data = {json.dumps(portfolio)};\nlet cash = {cash}")  
     return render_template("index.html", cash = cash)
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -81,7 +81,7 @@ def buy():
         
         #validate shares
         shares = request.form.get("shares")
-        if shares.strip() == "" or not shares:
+        if not shares:
             return apology("please enter a number of shares to purchase", 403)
             
         if int(shares) < 0:
@@ -106,7 +106,7 @@ def buy():
 
         #insert stock details to user portfolio
         #execute query to check if user already owns shares of chosen stock
-        SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE symbol = ?)", symbol)[0].values())[0]
+        SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE user_id = ? AND symbol = ?)", user_id, symbol)[0].values())[0]
 
         #if user already showns share of this stock, update share count
         if SQL_exists_value == 0:       
@@ -246,3 +246,15 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
+
+"""
+CREATE TABLE portfolio (
+    user_id INTEGER,
+    symbol TEXT NOT NULL,
+    name TEXT NOT NULL,
+    shares INTEGER, 
+    FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE UNIQUE INDEX user_id ON portfolio(user_id)
+"""

@@ -1,2 +1,2 @@
-let data = [{"symbol": "AAPL", "shares": 5, "name": "Apple Inc", "price": 148.64, "TOTAL": 743.1999999999999}, {"symbol": "MSFT", "shares": 15, "name": "Microsoft Corporation", "price": 308.13, "TOTAL": 4621.95}, {"symbol": "TSLA", "shares": 2, "name": "Tesla Inc", "price": 1024.86, "TOTAL": 2049.72}];
-let cash = 1841.929999999999
+let data = [{"symbol": "NFLX", "shares": 3, "name": "NetFlix Inc", "price": 671.66, "TOTAL": 2014.98}, {"symbol": "AAPL", "shares": 5, "name": "Apple Inc", "price": 148.64, "TOTAL": 743.2}, {"symbol": "MSFT", "shares": 5, "name": "Microsoft Corporation", "price": 308.13, "TOTAL": 1540.65}, {"symbol": "TSLA", "shares": 2, "name": "Tesla Inc", "price": 1024.86, "TOTAL": 2049.72}];
+let cash = 3651.45
