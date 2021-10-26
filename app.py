@@ -45,6 +45,7 @@ if not os.environ.get("API_KEY"):
 @app.route("/")
 @login_required
 def index():
+    #hello
     """Show portfolio of stocks"""
     #gets the details of user in current session
     #db.execute returns a list with 1 dict. That dict holds current user's details, so get it
