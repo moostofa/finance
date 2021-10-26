@@ -62,7 +62,7 @@ def index():
     #pass in the portfolio details and cash balance into a JS file
     with open("static/info.js", "w") as file:
         file.write(f"let portfolio = {portfolio};\nlet cash = {cash};")  
-    return render_template("index.html", cash = cash)
+    return render_template("index.html")
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -237,7 +237,20 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "GET":
+        portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", session["user_id"])
+        for company in portfolio:
+            #lookup real-time price for each stock user owns
+            company["price"] = lookup(company["symbol"])["price"]    
+        #get cash balance of current user
+        cash = round((db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]), 2)
+
+        #pass in the portfolio details and cash balance into a JS file
+        with open("static/info.js", "w") as file:
+            file.write(f"let portfolio = {portfolio};\nlet cash = {cash};")  
+        return render_template("sell.html")
+    else:
+        return apology("TODO")
 
 
 def errorhandler(e):
@@ -250,15 +263,3 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
-
-"""
-CREATE TABLE portfolio (
-    user_id INTEGER,
-    symbol TEXT NOT NULL,
-    name TEXT NOT NULL,
-    shares INTEGER, 
-    FOREIGN KEY(user_id) REFERENCES users(id)
-);
-
-CREATE UNIQUE INDEX user_id ON portfolio(user_id)
-"""
