@@ -5,16 +5,26 @@
 {% endblock %}
 
 {% block main %}
-    <h1>Details</h1>
-    <table>
-        <tr>
-            <th>Name</th>
-            <th>Cash</th>
-        </tr>
-        <tr>
-            <td>{{ user["username"] }}</td>
-            <td>{{ user["cash"] }}</td>
-        </tr>
-    </table>
-    <h3></h3>
+    <h1>Using JS</h1>
+    <div id="display-info"></div>
+    <script>
+        fetch("static/info.json").then(response => {
+            return response.json()
+        }).then(result => {
+            console.log(result)
+            document.querySelector("#display-info").innerHTML =
+            `
+            <table>
+            <tr>
+                <th>Name</th>
+                <th>Cash</th>
+            </tr>
+            <tr>
+                <td>${result["username"]}</td>
+                <td>${result["cash"]}</td>
+            </tr>
+            </table>
+            `
+        })
+    </script>
 {% endblock %}

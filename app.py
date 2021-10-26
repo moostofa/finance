@@ -1,3 +1,4 @@
+import json
 import os
 
 from cs50 import SQL
@@ -49,7 +50,9 @@ def index():
     """Show portfolio of stocks"""
     #gets the details of user in current session
     #db.execute returns a list with 1 dict. That dict holds current user's details, so get it
-    current_user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]    
+    current_user = db.execute("SELECT username, cash FROM users WHERE id = ?", session["user_id"])[0]  
+    with open("static/info.json", "w") as file:
+        file.write(f"{json.dumps(current_user)}")  
     return render_template("index.html", user = current_user)
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -99,7 +102,7 @@ def buy():
             db.execute("INSERT INTO portfolio VALUES (?, ?, ?)", user_id, symbol, shares)
         #otherwise, create a new row for the shares
         else:                           
-            db.execute("UPDATE portfolio SET shares = shares + ? WHERE id = ? AND symbol = ?", shares, user_id, symbol)
+            db.execute("UPDATE portfolio SET shares = shares + ? WHERE user_id = ? AND symbol = ?", shares, user_id, symbol)
 
         #insert transaction details
         db.execute("INSERT INTO transaction_data VALUES (?, ?, ?, datetime('now'))", user_id, symbol, shares)
