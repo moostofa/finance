@@ -83,7 +83,7 @@ def buy():
         #validate purchase
         purchase = shares * current_price
         if purchase > cash:
-            return apology("you do not have enough cash", 403)
+            return apology("insufficient funds", 403)
         cash -= purchase
 
         #update cash balance of the user
@@ -98,24 +98,12 @@ def buy():
             db.execute("INSERT INTO portfolio VALUES (?, ?, ?)", user_id, symbol, shares)
         #otherwise, create a new row for the shares
         else:                           
-            db.execute("UPDATE portfolio SET shares = shares + ? WHERE symbol = ?", shares, symbol)
+            db.execute("UPDATE portfolio SET shares = shares + ? WHERE id = ? AND symbol = ?", shares, user_id, symbol)
 
         #insert transaction details
         db.execute("INSERT INTO transaction_data VALUES (?, ?, ?, datetime('now'))", user_id, symbol, shares)
 
         return redirect("/")
-
-        
-        return f"""
-        current user id = {user_id}, varible is an int: {isinstance(user_id, int)},
-        chosen stock = {symbol}, variable is a string: {isinstance(symbol, str)},
-        shares to buy = {shares}, variable is an int: {isinstance(shares, int)},
-        current price of stock = {current_price}, variable is an int (should be false): {isinstance(current_price, int)},
-        cash on hand = {cash}, variable is an int: {isinstance(cash, int)}
-        TESTING: exists function returns {SQL_exists_value}
-        """
-        #create table stocks
-        #create table transactions (for history)
     else:       #if method is GET
         return render_template("buy.html")
 
@@ -243,22 +231,3 @@ def errorhandler(e):
 # Listen for errors
 for code in default_exceptions:
     app.errorhandler(code)(errorhandler)
-
-"""
-sqlite table:
-
-CREATE TABLE portfolio (
-    user_id INTEGER,
-    symbol TEXT NOT NULL,
-    shares INTEGER,
-    FOREIGN KEY(user_id) REFERENCES users(id)
-);
-
-CREATE TABLE transaction_data (
-    user_id INTEGER,
-    symbol TEXT NOT NULL,
-    shares INTEGER,
-    time TEXT NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
-"""
