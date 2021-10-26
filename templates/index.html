@@ -6,31 +6,44 @@
 
 {% block main %}
     <h1>Using JS</h1>
-    <div id="display-info"></div>
-    <script>
-        fetch("static/info.json").then(response => {
-            return response.json()
-        }).then(result => {
-            console.log(result)
-            document.querySelector("#display-info").innerHTML =
-            `
-            <h3>${JSON.stringify(result)}</h3>
-            `
-            /*
-            document.querySelector("#display-info").innerHTML =
-            `
-            <table>
-            <tr>
-                <th>Name</th>
-                <th>Cash</th>
-            </tr>
-            <tr>
-                <td>${result["username"]}</td>
-                <td>${result["cash"]}</td>
-            </tr>
-            </table>
-            `
-            */
-        })
-    </script>
+    <div></div>
+    <table id="display-info">
+        <tr>
+            <th>Symbol</th>
+            <th>Name</th>
+            <th>Shares</th>
+            <th>Price</th>
+            <th>TOTAL</th>
+        </tr>
+        <script>
+            fetch("static/info.json").then(response => {
+                return response.json()
+            }).then(result => {
+                console.log(result)
+                console.log(typeof(result))
+                Object.entries(response).forEach(([key, value]) => {
+                    console.log(`key: ${key}, value: ${value}`)
+                });
+                /*
+                for (let i in response) {
+                    console.log(object[i])
+                    document.getElementById("#display-info").innerHTML +=
+                    `
+                    <tr>
+                        <td>${object[i]["symbol"]}</td>
+                        <td>${object[i]["name"]}</td>
+                        <td>${object[i]["shares"]}</td>
+                        <td>${object[i]["price"]}</td>
+                        <td>${object[i]["TOTAL"]}</td>
+                    </tr>
+                    `
+                }
+                */
+            })
+        </script>
+        <tr>
+            <td></td><td></td><td></td><td></td>
+            <td>{{ cash }}</td>
+        </tr>
+    </table>
 {% endblock %}
