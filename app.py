@@ -49,7 +49,7 @@ def index():
     #gets the details of user in current session
     #db.execute returns a list with 1 dict. That dict holds current user's details, so get it
     current_user = db.execute("SELECT * FROM users WHERE id = ?", session["user_id"])[0]    
-    return render_template("index.html", user = current_user, jsonified = jsonify(current_user))
+    return render_template("index.html", user = current_user)
 
 @app.route("/buy", methods=["GET", "POST"])
 @login_required
@@ -73,21 +73,49 @@ def buy():
         if int(shares) < 0:
             return apology("please enter a positive number", 403)
 
-        current_user = db.execute("SELECT username FROM users WHERE id = ?", session["user_id"])[0]["username"]
+        #get all the data required
+        user_id = db.execute("SELECT id FROM users WHERE id = ?", session["user_id"])[0]["id"]
+        symbol = symbol.upper()
         shares = int(shares)
         current_price = lookup(symbol)["price"]
         cash = db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]
-        return f"""
-        current user = {current_user},
-        chosen stock = {symbol.upper()},
-        shares to buy = {shares},
-        current price of stock = {current_price},
-        cash on hand = {cash}
-        """
 
+        #validate purchase
+        purchase = shares * current_price
+        if purchase > cash:
+            return apology("you do not have enough cash", 403)
+        cash -= purchase
+
+        #update cash balance of the user
+        db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", purchase, user_id)
+
+        #insert stock details to user portfolio
+        #execute query to check if user already owns shares of chosen stock
+        SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE symbol = ?)", symbol)[0].values())[0]
+
+        #if user already showns share of this stock, update share count
+        if SQL_exists_value == 0:       
+            db.execute("INSERT INTO portfolio VALUES (?, ?, ?)", user_id, symbol, shares)
+        #otherwise, create a new row for the shares
+        else:                           
+            db.execute("UPDATE portfolio SET shares = shares + ? WHERE symbol = ?", shares, symbol)
+
+        #insert transaction details
+        db.execute("INSERT INTO transaction_data VALUES (?, ?, ?, datetime('now'))", user_id, symbol, shares)
+
+        return redirect("/")
+
+        
+        return f"""
+        current user id = {user_id}, varible is an int: {isinstance(user_id, int)},
+        chosen stock = {symbol}, variable is a string: {isinstance(symbol, str)},
+        shares to buy = {shares}, variable is an int: {isinstance(shares, int)},
+        current price of stock = {current_price}, variable is an int (should be false): {isinstance(current_price, int)},
+        cash on hand = {cash}, variable is an int: {isinstance(cash, int)}
+        TESTING: exists function returns {SQL_exists_value}
+        """
         #create table stocks
         #create table transactions (for history)
-        return
     else:       #if method is GET
         return render_template("buy.html")
 
@@ -219,7 +247,7 @@ for code in default_exceptions:
 """
 sqlite table:
 
-CREATE TABLE stocks (
+CREATE TABLE portfolio (
     user_id INTEGER,
     symbol TEXT NOT NULL,
     shares INTEGER,
