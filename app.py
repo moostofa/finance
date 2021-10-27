@@ -237,28 +237,54 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
+    userID = session["user_id"]
     if request.method == "GET":
-        portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", session["user_id"])
+        portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", userID)
         for company in portfolio:
             #lookup real-time price for each stock user owns
             company["price"] = lookup(company["symbol"])["price"]    
         #get cash balance of current user
-        cash = round((db.execute("SELECT cash FROM users WHERE id = ?", session["user_id"])[0]["cash"]), 2)
+        cash = round((db.execute("SELECT cash FROM users WHERE id = ?", userID)[0]["cash"]), 2)
 
         #pass in the portfolio details and cash balance into a JS file
         with open("static/info.js", "w") as file:
             file.write(f"let portfolio = {portfolio};\nlet cash = {cash};")  
         return render_template("sell.html")
     else:
-        #get a list of stocks user currently owns and the stock they want to sell
-        stocks = db.execute("SELECT symbol FROM portfolio WHERE user_id = ?", session["user_id"])
-        stocks = [item["symbol"] for item in stocks]
-        sell = request.form.get("sell")
+        #get the stock user wants to sell and check if they own it or not (also takes care of inspect element case)
+        stock_to_sell = request.form.get("sell")
+        SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE user_id = ? AND symbol = ?)", userID, stock_to_sell)[0].values())[0]
+        if SQL_exists_value == 0:       
+            return apology("you do not own any shares of the chosen stock", 403)
 
-        #error checking: user must choose a stock and stock must be in their portfolio (2nd condition exists in case user inspects element)
-        if not sell or sell not in stocks:
-            return apology("please choose a stock that you own", 403)
-        return f"stocks = {stocks}, stock to sell = {sell}"
+        #get the amount of shares user wants to sell, and check for validity
+        shares_to_sell = request.form.get("shares")
+        if not shares_to_sell:
+            return apology("please enter a number of shares to purchase", 403)
+
+        shares_to_sell = int(shares_to_sell)
+        shares_owned = db.execute("SELECT shares FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)[0]["shares"]
+
+        if shares_to_sell < 0:
+            return apology("please enter a positive number", 403)
+        if shares_to_sell > shares_owned:
+            return apology("you cannot sell more shares than you own", 403)
+        
+        #get value of sale
+        sale_value = shares_to_sell * lookup(stock_to_sell)["price"]
+        shares_owned -= shares_to_sell
+
+        #update cash balance
+        db.execute("UPDATE users SET cash = cash + ? WHERE id = ?", sale_value, userID)
+
+        #update portfolio
+        db.execute("UPDATE portfolio SET shares = ? WHERE user_id = ? AND symbol = ?", shares_owned, userID, stock_to_sell)
+
+        #if new share count is 0: delete row
+        if shares_owned == 0:
+            db.execute("DELETE FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)
+
+        return redirect("/")
 
 
 def errorhandler(e):
