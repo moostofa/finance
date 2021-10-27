@@ -72,19 +72,22 @@ def buy():
         #validate symbol
         symbol = request.form.get("symbol")                     
         if symbol.strip() == "" or not symbol:
-            return apology("please enter a symbol", 403)
+            return apology("please enter a symbol", 400)
                                                               
         #check if ticket symbol exists
         if not lookup(symbol):
-            return apology("ticker symbol does not exist", 403) 
+            return apology("ticker symbol does not exist", 400) 
         
         #validate shares
         shares = request.form.get("shares")
         if not shares:
-            return apology("please enter a number of shares to purchase", 403)
-            
-        if int(shares) < 0:
-            return apology("please enter a positive number", 403)
+            return apology("please enter a number of shares to purchase", 400)
+        
+        try:
+            if int(shares) < 0:
+                return apology("please enter a positive number", 400)
+        except:
+            return apology("please enter whole numbers", 400)
 
         #get all the data required
         user_id = session["user_id"]
@@ -97,7 +100,7 @@ def buy():
         #validate purchase
         purchase = shares * price
         if purchase > cash:
-            return apology("insufficient funds", 403)
+            return apology("insufficient funds", 400)
         cash -= purchase
 
         #update cash balance of the user
@@ -189,12 +192,12 @@ def quote():
         #get ticker symbol
         symbol = request.form.get("symbol")                     
         if symbol.strip() == "" or not symbol:
-            return apology("please enter a symbol", 403)
+            return apology("please enter a symbol", 400)
                                                               
         #look up ticker symbol and get quote
         quote = lookup(symbol)
         if not quote:
-            return apology("ticker symbol does not exist", 403) 
+            return apology("ticker symbol does not exist", 400) 
         
         #used jinja in html page instead of JS
         return render_template("quoted.html", stock_info = quote)
@@ -208,24 +211,25 @@ def register():
     #consider doing this part in javascript
     #get a list of existing usernames
     existing_usernames = db.execute("SELECT username FROM users")
+    existing_usernames = [entry["username"] for entry in existing_usernames]
     
     #if the form is submitted
     if request.method == "POST":
         #check for valid username
         name = request.form.get("username")
         if not name:
-            return apology("must provide username", 403)
+            return apology("must provide username", 400)
         if name in existing_usernames:
-            return apology("username already exists", 403)
+            return apology("username already exists", 400)
             
         password = request.form.get("password")
-        confirm_password = request.form.get("confirm-password")
+        confirm_password = request.form.get("confirmation")
         
         #check for valid password
         if not password: 
-            return apology("please provide a password", 403)
+            return apology("please provide a password", 400)
         if password != confirm_password:
-            return apology("passwords do not match", 403)
+            return apology("passwords do not match", 400)
             
         #insert new user to database
         db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", name, generate_password_hash(password))
@@ -259,22 +263,22 @@ def sell():
         stock_to_sell = request.form.get("sell")
         SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE user_id = ? AND symbol = ?)", userID, stock_to_sell)[0].values())[0]
         if SQL_exists_value == 0:       
-            return apology("you do not own any shares of the chosen stock", 403)
+            return apology("you do not own any shares of the chosen stock", 400)
 
         #get the amount of shares user wants to sell, and check for validity
         shares_to_sell = request.form.get("shares")
         if not shares_to_sell:
-            return apology("please enter a number of shares to purchase", 403)
+            return apology("please enter a number of shares to purchase", 400)
 
         #cannot sell a negative number of shares
         shares_to_sell = int(shares_to_sell)
         if shares_to_sell < 0:
-            return apology("please enter a positive number", 403)
+            return apology("please enter a positive number", 400)
 
         #cannot sell more shares than the user owns
         shares_owned = db.execute("SELECT shares FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)[0]["shares"]
         if shares_to_sell > shares_owned:
-            return apology("you cannot sell more shares than you own", 403)
+            return apology("you cannot sell more shares than you own", 400)
         
         #get value of sale and update DB tables
         sale_value = shares_to_sell * lookup(stock_to_sell)["price"]
