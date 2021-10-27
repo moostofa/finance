@@ -237,12 +237,14 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    userID = session["user_id"]
+    userID = session["user_id"]     #can re-use this multiple times
+
     if request.method == "GET":
         portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", userID)
         for company in portfolio:
             #lookup real-time price for each stock user owns
-            company["price"] = lookup(company["symbol"])["price"]    
+            company["price"] = lookup(company["symbol"])["price"]  
+
         #get cash balance of current user
         cash = round((db.execute("SELECT cash FROM users WHERE id = ?", userID)[0]["cash"]), 2)
 
@@ -262,15 +264,17 @@ def sell():
         if not shares_to_sell:
             return apology("please enter a number of shares to purchase", 403)
 
+        #cannot sell a negative number of shares
         shares_to_sell = int(shares_to_sell)
-        shares_owned = db.execute("SELECT shares FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)[0]["shares"]
-
         if shares_to_sell < 0:
             return apology("please enter a positive number", 403)
+
+        #cannot sell more shares than the user owns
+        shares_owned = db.execute("SELECT shares FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)[0]["shares"]
         if shares_to_sell > shares_owned:
             return apology("you cannot sell more shares than you own", 403)
         
-        #get value of sale
+        #get value of sale and update
         sale_value = shares_to_sell * lookup(stock_to_sell)["price"]
         shares_owned -= shares_to_sell
 
@@ -283,7 +287,6 @@ def sell():
         #if new share count is 0: delete row
         if shares_owned == 0:
             db.execute("DELETE FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)
-
         return redirect("/")
 
 
