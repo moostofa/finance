@@ -46,6 +46,7 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
+    #get user portfolio (a list of dicts)
     portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", session["user_id"])
     for company in portfolio:
         #lookup real-time data for the stock
@@ -74,7 +75,7 @@ def buy():
         if symbol.strip() == "" or not symbol:
             return apology("please enter a symbol", 400)
                                                               
-        #check if ticket symbol exists
+        #check if ticker symbol exists
         if not lookup(symbol):
             return apology("ticker symbol does not exist", 400) 
         
@@ -83,10 +84,11 @@ def buy():
         if not shares:
             return apology("please enter a number of shares to purchase", 400)
         
-        try:
-            if int(shares) < 0:
+        #make sure shares is a positive integer value
+        try:        
+            if int(shares) <= 0:
                 return apology("please enter a positive number", 400)
-        except:
+        except:     #exception TypeError: user entered a decimal value. return apology
             return apology("please enter whole numbers", 400)
 
         #get all the data required
@@ -126,7 +128,7 @@ def buy():
 
 
 @app.route("/history")
-@login_required
+@login_required 
 def history():
     """Show history of transactions"""
     #run query to fetch transaction details
@@ -199,8 +201,10 @@ def quote():
         if not quote:
             return apology("ticker symbol does not exist", 400) 
         
-        #used jinja in html page instead of JS
-        return render_template("quoted.html", stock_info = quote)
+        #write stock info to a JS file, which will be used to dynamically generate webpage
+        with open("static/info.js", "w") as file:
+            file.write(f"let quote = {quote};")  
+        return render_template("quoted.html")
     else:       #else: GET request for quote.html
         return render_template("quote.html")
 
@@ -208,7 +212,8 @@ def quote():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
-    #consider doing this part in javascript
+    #consider doing this part in javascript -> like boxes turn red, red feedback text appears, etc.
+
     #get a list of existing usernames
     existing_usernames = db.execute("SELECT username FROM users")
     existing_usernames = [entry["username"] for entry in existing_usernames]
@@ -231,7 +236,7 @@ def register():
         if password != confirm_password:
             return apology("passwords do not match", 400)
             
-        #insert new user to database
+        #insert new user into database + hash password
         db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", name, generate_password_hash(password))
         return redirect("/")
     else:       
@@ -260,7 +265,7 @@ def sell():
         return render_template("sell.html")
     else:
         #get the stock user wants to sell and check if they own it or not (also takes care of inspect element case/"hacking")
-        stock_to_sell = request.form.get("sell")
+        stock_to_sell = request.form.get("symbol")
         SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE user_id = ? AND symbol = ?)", userID, stock_to_sell)[0].values())[0]
         if SQL_exists_value == 0:       
             return apology("you do not own any shares of the chosen stock", 400)
@@ -272,7 +277,7 @@ def sell():
 
         #cannot sell a negative number of shares
         shares_to_sell = int(shares_to_sell)
-        if shares_to_sell < 0:
+        if shares_to_sell <= 0:
             return apology("please enter a positive number", 400)
 
         #cannot sell more shares than the user owns
