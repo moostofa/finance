@@ -7,7 +7,7 @@
 {% block main %}
     <h1>Portfolio</h1>
     <div>
-        <table id="display-info">
+        <table class="display" id="display-info">
             <tr>
                 <th>Symbol</th>
                 <th>Name</th>
@@ -34,13 +34,14 @@
                 document.getElementById("display-info").innerHTML +=  
                 `
                 <tr>
-                    <td>CASH</td>
+                    <th>CASH</th>
                     <td></td><td></td><td></td>
-                    <td>$${cash}</td>
+                    <th>$${cash}</th>
                 </tr>
                 <tr>
-                    <td></td><td></td><td></td><td></td>
-                    <td>$${sum.toFixed(2)}</td>
+                    <td></td><td></td><td></td>
+                    <th>Portfolio value:</th>
+                    <th>$${sum.toFixed(2)}</th>
                 </tr>
                 `
             </script>

@@ -101,10 +101,10 @@ def buy():
         cash -= purchase
 
         #update cash balance of the user
-        db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", purchase, user_id)
+        db.execute("UPDATE users SET cash = ? WHERE id = ?", cash, user_id)
 
         #insert stock details to user portfolio
-        #execute query to check if user already owns shares of chosen stock
+        #first, execute query to check if user already owns shares of chosen stock
         SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE user_id = ? AND symbol = ?)", user_id, symbol)[0].values())[0]
 
         #if user already showns share of this stock, update share count
@@ -114,8 +114,8 @@ def buy():
         else:                           
             db.execute("UPDATE portfolio SET shares = shares + ? WHERE user_id = ? AND symbol = ?", shares, user_id, symbol)
 
-        #insert transaction details
-        db.execute("INSERT INTO transaction_data VALUES (?, ?, ?, datetime('now'))", user_id, symbol, shares)
+        #record transaction details
+        db.execute("INSERT INTO transaction_data VALUES (?, ?, ?, ?, datetime('now'))", user_id, symbol, shares, price)
 
         return redirect("/")
     else:       #if method is GET
@@ -126,10 +126,10 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    transactions = db.execute("SELECT symbol, shares, time FROM transaction_data WHERE user_id = ? ORDER BY time", session["user_id"])
-    for transaction in transactions:
-        transaction["price"] = lookup(transaction["symbol"])["price"]
+    #run query to fetch transaction details
+    transactions = db.execute("SELECT symbol, shares, price, time FROM transaction_data WHERE user_id = ? ORDER BY time", session["user_id"])
 
+    #write transaction details to js file
     with open("static/info.js", "w") as file:
         file.write(f"let transactions = {transactions}")  
     return render_template("history.html")
@@ -196,6 +196,7 @@ def quote():
         if not quote:
             return apology("ticker symbol does not exist", 403) 
         
+        #used jinja in html page instead of JS
         return render_template("quoted.html", stock_info = quote)
     else:       #else: GET request for quote.html
         return render_template("quote.html")
@@ -226,11 +227,11 @@ def register():
         if password != confirm_password:
             return apology("passwords do not match", 403)
             
-        #add new user to database
+        #insert new user to database
         db.execute("INSERT INTO users (username, hash) VALUES (?, ?)", name, generate_password_hash(password))
         return redirect("/")
     else:       
-        return render_template("register.html")     #GET request: display register.html to user     
+        return render_template("register.html")     #else, GET request: display register.html to user     
 
 
 @app.route("/sell", methods=["GET", "POST"])
@@ -240,9 +241,10 @@ def sell():
     userID = session["user_id"]     #can re-use this multiple times
 
     if request.method == "GET":
+        #query DB for user's portfolio
         portfolio = db.execute("SELECT symbol, shares FROM portfolio where user_id = ? ORDER BY symbol", userID)
         for company in portfolio:
-            #lookup real-time price for each stock user owns
+            #lookup real-time price for each stock user owns and add that value to each dictionary of stocks
             company["price"] = lookup(company["symbol"])["price"]  
 
         #get cash balance of current user
@@ -253,7 +255,7 @@ def sell():
             file.write(f"let portfolio = {portfolio};\nlet cash = {cash};")  
         return render_template("sell.html")
     else:
-        #get the stock user wants to sell and check if they own it or not (also takes care of inspect element case)
+        #get the stock user wants to sell and check if they own it or not (also takes care of inspect element case/"hacking")
         stock_to_sell = request.form.get("sell")
         SQL_exists_value = list(db.execute("SELECT EXISTS (SELECT symbol FROM portfolio WHERE user_id = ? AND symbol = ?)", userID, stock_to_sell)[0].values())[0]
         if SQL_exists_value == 0:       
@@ -274,7 +276,7 @@ def sell():
         if shares_to_sell > shares_owned:
             return apology("you cannot sell more shares than you own", 403)
         
-        #get value of sale and update
+        #get value of sale and update DB tables
         sale_value = shares_to_sell * lookup(stock_to_sell)["price"]
         shares_owned -= shares_to_sell
 
@@ -287,6 +289,10 @@ def sell():
         #if new share count is 0: delete row
         if shares_owned == 0:
             db.execute("DELETE FROM portfolio WHERE user_id = ? AND symbol = ?", userID, stock_to_sell)
+
+        #record transaction details
+        db.execute("INSERT INTO transaction_data VALUES (?, ?, ?, ?, datetime('now'))", userID, stock_to_sell, -(shares_to_sell), lookup(stock_to_sell)["price"])
+        
         return redirect("/")
 
 

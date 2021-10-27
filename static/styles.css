@@ -45,3 +45,17 @@ main img
     /* Constrain images on small screens */
     max-width: 100%;
 }
+
+.display {
+    border: 2px solid steelblue;
+}
+    .display tr {
+        border: 1px solid rebeccapurple;
+        height: 50px;
+    }
+    .display th, td {
+        background-color: aliceblue;
+        font-size: large;
+        width: 10%;
+        padding: 10px;
+    }
