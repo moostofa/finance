@@ -1,2 +1,2 @@
-let portfolio = [{'symbol': 'AAPL', 'shares': 10, 'price': 149.27}, {'symbol': 'M', 'shares': 2, 'price': 26.29}, {'symbol': 'MSFT', 'shares': 5, 'price': 309.84}, {'symbol': 'NFLX', 'shares': 3, 'price': 668.52}, {'symbol': 'NVDA', 'shares': 5, 'price': 247.17}, {'symbol': 'TSLA', 'shares': 2, 'price': 1018.58}];
+let portfolio = [{'symbol': 'AAPL', 'shares': 10, 'price': 149.32}, {'symbol': 'M', 'shares': 2, 'price': 26.29}, {'symbol': 'MSFT', 'shares': 5, 'price': 310.11}, {'symbol': 'NFLX', 'shares': 3, 'price': 668.52}, {'symbol': 'NVDA', 'shares': 5, 'price': 247.17}, {'symbol': 'TSLA', 'shares': 2, 'price': 1018.43}];
 let cash = 1616.67;

@@ -250,7 +250,15 @@ def sell():
             file.write(f"let portfolio = {portfolio};\nlet cash = {cash};")  
         return render_template("sell.html")
     else:
-        return apology("TODO")
+        #get a list of stocks user currently owns and the stock they want to sell
+        stocks = db.execute("SELECT symbol FROM portfolio WHERE user_id = ?", session["user_id"])
+        stocks = [item["symbol"] for item in stocks]
+        sell = request.form.get("sell")
+
+        #error checking: user must choose a stock and stock must be in their portfolio (2nd condition exists in case user inspects element)
+        if not sell or sell not in stocks:
+            return apology("please choose a stock that you own", 403)
+        return f"stocks = {stocks}, stock to sell = {sell}"
 
 
 def errorhandler(e):
