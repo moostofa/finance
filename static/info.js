@@ -1,2 +1,2 @@
-let portfolio = [{'symbol': 'AAPL', 'shares': 11, 'name': 'Apple Inc', 'price': 149.32, 'TOTAL': 1642.52}, {'symbol': 'M', 'shares': 7, 'name': 'Macy`s Inc', 'price': 26.29, 'TOTAL': 184.03}, {'symbol': 'MSFT', 'shares': 1, 'name': 'Microsoft Corporation', 'price': 310.11, 'TOTAL': 310.11}, {'symbol': 'NFLX', 'shares': 4, 'name': 'NetFlix Inc', 'price': 668.52, 'TOTAL': 2674.08}, {'symbol': 'NVDA', 'shares': 5, 'name': 'NVIDIA Corp', 'price': 247.17, 'TOTAL': 1235.85}, {'symbol': 'SOLO', 'shares': 5, 'name': 'Electrameccanica Vehicles Corp', 'price': 3.27, 'TOTAL': 16.35}];
-let cash = 3937.06;
+let portfolio = [];
+let cash = 10000;
