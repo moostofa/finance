@@ -1,7 +1,7 @@
 # Finance
 A full stack flask web application which simulates the buying and selling of stocks.
 
-This is project 9 of the CS50 course. [Link] to the project description.
+This is project 9 of the CS50 course. [Link](https://cs50.harvard.edu/x/2021/psets/9/finance/) to the project description.
 
 Functionalities include:
 - User authentication
