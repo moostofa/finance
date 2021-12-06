@@ -1,7 +1,7 @@
 # Finance
 A full stack flask web application which simulates the buying and selling of stocks.
 
-This is project 9 of the CS50 course. [Link](https://cs50.harvard.edu/x/2021/psets/9/finance/) to the project description.
+This is project 9 of the course [CS50x 2021](https://cs50.harvard.edu/x/2021/)
 
 Functionalities include:
 - User authentication
@@ -15,6 +15,14 @@ Functionalities include:
 Real-time data provided for free by [IEX](https://exchange.iex.io/products/market-data-connectivity/). View [IEX's Terms of Use](https://iexcloud.io/terms/)
 
 All stock prices are in $USD.
+
+# Project goals
+- Create first full stack web application
+- Learning Flask
+- Implementing MVC design pattern
+- Sending GET and POST requests to routes & handling them
+- Implementing user authentication & storing sessions 
+- Learning and working with APIs (IEX cloud)
 
 # Starting the application
 When you fire up the application, you'll be greeted with a login form. Feel free to register for an account with any credentials (password restrictions are not enforced). Once you are logged in, you will see your current portfolio, which will initially contain a $10,000 cash balance for you to use.
