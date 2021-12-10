@@ -1,5 +1,5 @@
 # Finance
-A full stack flask web application which simulates the buying and selling of stocks.
+A flask web application which simulates the buying and selling of stocks.
 
 This is project 9 of the course [CS50x 2021](https://cs50.harvard.edu/x/2021/).
 
@@ -17,7 +17,6 @@ Real-time data provided for free by [IEX](https://exchange.iex.io/products/marke
 All stock prices are in $USD.
 
 # Project goals
-- Create first full stack web application
 - Learning Flask
 - Implementing MVC design pattern
 - Sending GET and POST requests to routes & handling them
